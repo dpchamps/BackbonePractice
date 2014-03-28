@@ -1,0 +1,272 @@
+<!DOCTYPE  html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    
+    <title>doc</title>
+    <style>
+      /*github.com style (c) Vasily Polovnyov <vast@whiteants.net>*/
+      pre code {
+        display: block; padding: 0.5em;
+        color: #333;
+        background: #f8f8ff
+      }
+      pre .comment,
+      pre .template_comment,
+      pre .diff .header,
+      pre .javadoc {
+        color: #998;
+        font-style: italic
+      }
+      pre .keyword,
+      pre .css .rule .keyword,
+      pre .winutils,
+      pre .javascript .title,
+      pre .nginx .title,
+      pre .subst,
+      pre .request,
+      pre .status {
+        color: #333;
+        font-weight: bold
+      }
+      pre .number,
+      pre .hexcolor,
+      pre .ruby .constant {
+        color: #099;
+      }
+      pre .string,
+      pre .tag .value,
+      pre .phpdoc,
+      pre .tex .formula {
+        color: #d14
+      }
+      pre .title,
+      pre .id {
+        color: #900;
+        font-weight: bold
+      }
+      pre .javascript .title,
+      pre .lisp .title,
+      pre .clojure .title,
+      pre .subst {
+        font-weight: normal
+      }
+      pre .class .title,
+      pre .haskell .type,
+      pre .vhdl .literal,
+      pre .tex .command {
+        color: #458;
+        font-weight: bold
+      }
+      pre .tag,
+      pre .tag .title,
+      pre .rules .property,
+      pre .django .tag .keyword {
+        color: #000080;
+        font-weight: normal
+      }
+      pre .attribute,
+      pre .variable,
+      pre .lisp .body {
+        color: #008080
+      }
+      pre .regexp {
+        color: #009926
+      }
+      pre .class {
+        color: #458;
+        font-weight: bold
+      }
+      pre .symbol,
+      pre .ruby .symbol .string,
+      pre .lisp .keyword,
+      pre .tex .special,
+      pre .prompt {
+        color: #990073
+      }
+      pre .built_in,
+      pre .lisp .title,
+      pre .clojure .built_in {
+        color: #0086b3
+      }
+      pre .preprocessor,
+      pre .pi,
+      pre .doctype,
+      pre .shebang,
+      pre .cdata {
+        color: #999;
+        font-weight: bold
+      }
+      pre .deletion {
+        background: #fdd
+      }
+      pre .addition {
+        background: #dfd
+      }
+      pre .diff .change {
+        background: #0086b3
+      }
+      pre .chunk {
+        color: #aaa
+      }
+    </style>
+  </head>
+  <body>  
+    <h1 id="chapter-2-mvc">Chapter 2 - MVC</h1>
+<h2 id="the-evolution-of-the-model-view-controller">The Evolution of the Model - View - Controller</h2>
+<h3 id="an-architectural-design-pattern-for-improved-application-organization">An Architectural design pattern, for improved application organization</h3>
+<table>
+<thead>
+<tr>
+<th>Business Data</th>
+<th>User Interfaces</th>
+<th>logic/coordination</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Models</strong></td>
+<td><strong>Views</strong></td>
+<td><strong>Controllers</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Originally designed by Tryque Reenskaug while working on smalltalk-80,
+It was originally called Model-View-Controller-Editor</p>
+<h4 id="salltalk-80-mvc">Salltalk-80 MVC</h4>
+<p>Back in the 70&#39;s, GUI&#39;s weren&#39;t much used. An approach known as seperated presentation came around.
+Seperated presentation was developed and used to divide</p>
+<table>
+<thead>
+<tr>
+<th>Domain Objects</th>
+<th>from</th>
+<th>Presentation Objects</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>models of things in the real world</td>
+<td></td>
+<td>rendered to the users screen</td>
+</tr>
+</tbody>
+</table>
+<p>The smalltalk MVC took this further:</p>
+<table>
+<thead>
+<tr>
+<th>Application Logic</th>
+<th>from</th>
+<th>User Interface</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>The idea was to allow the reuse of Models for other interfaces</p>
+<ul>
+<li>Domain Element -&gt; Model<ul>
+<li>ignorant of user interface</li>
+</ul>
+</li>
+<li>Presentation taken care of by View and Controller<ul>
+<li>View-controller pair required for each element displayed on the screen</li>
+<li>separation between them</li>
+</ul>
+</li>
+<li>Controller handled user input and did something with them.</li>
+<li>The observer-pattern was used to update the view whenever the model changed.</li>
+</ul>
+<h4 id="example-ruby-on-rails-a-framework-that-attempts-mvc">Example: Ruby on Rails, a framework that attempts MVC</h4>
+<p>url -&gt; Rails Router</p>
+<pre><code>       |
+
+       \/</code></pre>
+<p>View &lt;-&gt; Controller &lt;-&gt; Model &lt;-&gt; Data Source</p>
+<pre><code>        |
+
+        \/
+
+        Browser</code></pre>
+<h4 id="in-rails-">In Rails:</h4>
+<ul>
+<li>Models represent the data in an application and are typically used to manage rules for
+interacting with specific database tables. Generally, one table, one model with business logic,
+living within these models.</li>
+<li>Views represent your U.I.<ul>
+<li>HTML that will be sent to the browser.</li>
+<li>Present application data to anything making requests from your application.</li>
+</ul>
+</li>
+<li>Controllers process requests from the browser, query models for data and supply data to views.</li>
+</ul>
+<h3 id="the-s-p-a-s-ingle-p-age-a-pplication-">The S.P.A. (<strong>S</strong>ingle <strong>P</strong>age <strong>A</strong>pplication)</h3>
+<p>After initial page load, navigations and requests for data handled with out complete reload.</p>
+<p>As SPA&#39;s become more complex, the need for organization increases. Hence, M.V.C!</p>
+<h2 id="client-side-mvc-backbone-style">Client Side MVC, Backbone style</h2>
+<p>  <strong><a href="../../chapter-2/index.html">reference code in /chapter-2</a></strong></p>
+<h4 id="the-simple-to-do-application">The Simple To-Do Application</h4>
+<p>This example will increase in complexity as the tutorial continues</p>
+<p>In the Todo application (demo.js), Backbone.Model instances are used to hold the data for each todo item.</p>
+<p>The Todo model extends Backbone.Model and simply defines values for two data attributes</p>
+<p>(From the code), Backbone models provide many more poweful features, but this illustrates that
+a model is a data container.</p>
+<p>Each Todo instance will be rendered by a TodoView</p>
+<p>TodoView extends Backbone.View, instantiated with an associated model</p>
+<pre><code class="lang-javascript">  render()</code></pre>
+<ul>
+<li>Uses a template to construct the HTML</li>
+<li>Each call to render() well replace the content of the li element using the current model data.</li>
+</ul>
+<p><strong>Instead of having a controller, the responsibility is handled in the view</strong></p>
+<h5 id="events-can-be">Events can be</h5>
+<ul>
+<li>traditional user input (clicks, mousedown etc...)</li>
+<li>internal application events (model data changing)</li>
+</ul>
+<p>Backbone.Event is a fundemental component which is mixed in with both Model &amp; View</p>
+<h2 id="implementation-specifics">Implementation Specifics</h2>
+<ol>
+<li><p>A SPA is loaded to the browser using normal HTTP request / response</p>
+</li>
+<li><p>The page could be an HTML file, or a view constructed by a server-side MVC implementation</p>
+</li>
+<li><p>URL routing, DOM events and Model events trigger handling logic in the view.</p>
+</li>
+<li><p>Models are synced with Data Sources which may involve communicating with back-end servers.</p>
+</li>
+</ol>
+<h2 id="models">Models</h2>
+<ol>
+<li><p>Vary across frameworks, but commonly support attribute validation.</p>
+</li>
+<li><p>In the wild, we need a way of persisting Models, either in a browsers local-storage or synced with the server.</p>
+</li>
+<li><p>May (<em>read: can, <strong>or</strong> might</em>) have multiple views observing it.</p>
+</li>
+<li><p>Not uncommon to provide a means of grouping models together. These groups are called <strong>collections</strong> in backbone.</p>
+</li>
+</ol>
+<h2 id="views">Views</h2>
+<ol>
+<li><p>Users interact with views, which generally means reading and editing Model Data.</p>
+</li>
+<li><p>render() within View is responsible for rendering contents of the model using a templating engine.</p>
+</li>
+<li><p>Updating the contents of the view is referenced by this.$el.</p>
+</li>
+</ol>
+<h2 id="navigation-state">Navigation &amp; State</h2>
+<p>With single page javascript applications, once data is fetched from the server via ajax, it can be dynamically rendered
+in a new view within the same page.</p>
+<p>Since the URL isn&#39;t automatically updated, the role of navigation falls to a <strong>&quot;Router&quot;</strong> which assists in managing
+application state</p>
+<p><strong>Routers are neither a part of MVC or present in MVC-frameworks like Backbone.</strong>
+Routers will be discussed later in the tutorial</p>
+
+  </body>
+</html>
