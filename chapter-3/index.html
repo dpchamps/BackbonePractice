@@ -1,0 +1,84 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Backbone Fundementals Chapter 3</title>
+</head>
+<body>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="http://documentcloud.github.com/underscore/underscore-min.js"></script>
+<script src="http://documentcloud.github.com/backbone/backbone-min.js"></script>
+
+<div id="todo">
+</div>
+<script type="text/template" id="item-template">
+    <div>
+        <input id="todo_complete" type="checkbox" <%= completed ? 'checked="checked"' : '' %> >
+        <%= title %>
+    </div>
+</script>
+
+<script>
+    var Todo = Backbone.Model.extend({
+        defaults: {
+            completed: false
+        },
+        validate: function(attrs){
+            if(attrs.title === undefined){
+                return "Don't forget to set that title BROHEEM!";
+            }
+        },
+        initialize: function(){
+            console.log("A Todo Model has been initialized");
+            this.on('invalid', function(model, error){
+                console.log(error);
+            });
+            this.on('change:title', function(){
+                console.log("TITLE HAS BEEN CHANGED!!`1");
+            });
+        }
+    });
+
+    var TodoView = Backbone.View.extend({
+        tagName: 'li',
+
+        todoTemplate: _.template( "A fun template "),
+
+        events: {
+            'dblclick label' : 'edit',
+            'keypress .edit': 'updateOnEnter',
+            'blur .edit' : 'close'
+        },
+
+        initialize: function(options){
+            this.options = options || {};
+        },
+
+        render: function(){
+            this.$el.html( this.todoTemplate( this.model.toJSON() ) );
+            this.input = this.$('.edit');
+            return this;
+        },
+
+        edit: function(){
+            //executed when label is double clicked
+        },
+
+        updateOnEnter: function(e){
+            //executed on each keypress when in edit mode,
+            //test e.keycode for enter to do something, Im guessing
+        },
+        close: function(){
+            //executed when todo loses focus.
+        }
+
+    });
+    var aTodoView = new TodoView();
+
+    console.log(aTodoView.el);
+
+
+</script>
+</body>
+</html>
