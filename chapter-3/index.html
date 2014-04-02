@@ -11,74 +11,73 @@
 <script src="http://documentcloud.github.com/backbone/backbone-min.js"></script>
 
 <div id="todo">
+    <input type="checkbox" />
 </div>
 <script type="text/template" id="item-template">
     <div>
         <input id="todo_complete" type="checkbox" <%= completed ? 'checked="checked"' : '' %> >
         <%= title %>
     </div>
+
 </script>
 
 <script>
-    var Todo = Backbone.Model.extend({
-        defaults: {
-            completed: false
+    var TodoRouter = Backbone.Router.extend({
+        path: '/backbonetutorial/chapter-3/',
+        routes: {
+            'about' : 'showAbout',
+
+            'todo/:id' : 'getTodo',
+
+            'search/:query' : 'searchTodos',
+
+            'search/:query/p:page' : 'searchTodos',
+
+            'todos/:id/download/*documentPath' : 'downloadDocument',
+
+            '*other' : 'defaultRoute',
+
+            'optional(/:item)' : 'optionalItem',
+
+            "named/optional/(y:z)" : 'namedOptionalItem'
         },
-        validate: function(attrs){
-            if(attrs.title === undefined){
-                return "Don't forget to set that title BROHEEM!";
+
+        //now we define the mapped functions
+        showAbout: function(){
+            console.log("This is the about page");
+        },
+        getTodo: function(id){
+            console.log("Displaying todo number", id);
+        },
+        searchTodos: function(query, page){
+            var page_number = page || 1;
+            console.log("Page number", page_number, "of the results for todos containing the word:", query);
+        },
+        downloadDocument: function(id, path){
+            console.log("Attempting to download an item with the id:", id, "from the path:", path);
+        },
+        defaultRoute: function(other){
+            if(other === null){
+                this.navigate("/home/");
+                console.log("this is the home page")
+            }else{
+                console.log("Invalid page request. You attempted to navigate to", other,
+                        ". \nBeing redirected to either 404.");
             }
-        },
-        initialize: function(){
-            console.log("A Todo Model has been initialized");
-            this.on('invalid', function(model, error){
-                console.log(error);
-            });
-            this.on('change:title', function(){
-                console.log("TITLE HAS BEEN CHANGED!!`1");
-            });
-        }
-    });
-
-    var TodoView = Backbone.View.extend({
-        tagName: 'li',
-
-        todoTemplate: _.template( "A fun template "),
-
-        events: {
-            'dblclick label' : 'edit',
-            'keypress .edit': 'updateOnEnter',
-            'blur .edit' : 'close'
-        },
-
-        initialize: function(options){
-            this.options = options || {};
-        },
-
-        render: function(){
-            this.$el.html( this.todoTemplate( this.model.toJSON() ) );
-            this.input = this.$('.edit');
-            return this;
-        },
-
-        edit: function(){
-            //executed when label is double clicked
-        },
-
-        updateOnEnter: function(e){
-            //executed on each keypress when in edit mode,
-            //test e.keycode for enter to do something, Im guessing
-        },
-        close: function(){
-            //executed when todo loses focus.
         }
 
     });
-    var aTodoView = new TodoView();
 
-    console.log(aTodoView.el);
-
-
+    var mainRouter = new TodoRouter();
+    Backbone.history.start();
+    Backbone.history.on('route', function(){
+        console.log("route changed... something something");
+    });
+    mainRouter.on('route', function(name, args){
+       console.log(name, name === 'routeEvent');
+    });
+    location.replace('http://localhost:63342/backbonetutorial/chapter-3/#route-event/x');
+    Backbone.history.checkUrl();
 </script>
 </body>
 </html>
