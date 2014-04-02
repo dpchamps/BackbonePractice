@@ -1,0 +1,534 @@
+<!DOCTYPE  html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    
+    <title>doc</title>
+    <style>
+      /*github.com style (c) Vasily Polovnyov <vast@whiteants.net>*/
+      pre code {
+        display: block; padding: 0.5em;
+        color: #333;
+        background: #f8f8ff
+      }
+      pre .comment,
+      pre .template_comment,
+      pre .diff .header,
+      pre .javadoc {
+        color: #998;
+        font-style: italic
+      }
+      pre .keyword,
+      pre .css .rule .keyword,
+      pre .winutils,
+      pre .javascript .title,
+      pre .nginx .title,
+      pre .subst,
+      pre .request,
+      pre .status {
+        color: #333;
+        font-weight: bold
+      }
+      pre .number,
+      pre .hexcolor,
+      pre .ruby .constant {
+        color: #099;
+      }
+      pre .string,
+      pre .tag .value,
+      pre .phpdoc,
+      pre .tex .formula {
+        color: #d14
+      }
+      pre .title,
+      pre .id {
+        color: #900;
+        font-weight: bold
+      }
+      pre .javascript .title,
+      pre .lisp .title,
+      pre .clojure .title,
+      pre .subst {
+        font-weight: normal
+      }
+      pre .class .title,
+      pre .haskell .type,
+      pre .vhdl .literal,
+      pre .tex .command {
+        color: #458;
+        font-weight: bold
+      }
+      pre .tag,
+      pre .tag .title,
+      pre .rules .property,
+      pre .django .tag .keyword {
+        color: #000080;
+        font-weight: normal
+      }
+      pre .attribute,
+      pre .variable,
+      pre .lisp .body {
+        color: #008080
+      }
+      pre .regexp {
+        color: #009926
+      }
+      pre .class {
+        color: #458;
+        font-weight: bold
+      }
+      pre .symbol,
+      pre .ruby .symbol .string,
+      pre .lisp .keyword,
+      pre .tex .special,
+      pre .prompt {
+        color: #990073
+      }
+      pre .built_in,
+      pre .lisp .title,
+      pre .clojure .built_in {
+        color: #0086b3
+      }
+      pre .preprocessor,
+      pre .pi,
+      pre .doctype,
+      pre .shebang,
+      pre .cdata {
+        color: #999;
+        font-weight: bold
+      }
+      pre .deletion {
+        background: #fdd
+      }
+      pre .addition {
+        background: #dfd
+      }
+      pre .diff .change {
+        background: #0086b3
+      }
+      pre .chunk {
+        color: #aaa
+      }
+    </style>
+  </head>
+  <body>  
+    <h1 id="chapter-3-backbone-basics-and-internals">Chapter 3 - Backbone Basics and Internals</h1>
+<h2 id="in-this-section-the-essentials-of-backbone-s">In this section: the essentials of Backbone&#39;s</h2>
+<ul>
+<li>Models</li>
+<li>Views</li>
+<li>Collections</li>
+<li>Events, and</li>
+<li>Routers</li>
+</ul>
+<h3 id="note-read-refer-to-the-official-backbone-documentation-for-more-depth">Note: Read/Refer to the official Backbone Documentation for more depth</h3>
+<ul>
+<li><strong>The code in the corresponding chapter section does not contain all of the depth of this chapter, but only the last example</strong></li>
+</ul>
+<h2 id="models">Models</h2>
+<ul>
+<li>Contain data for an application as well as the logic around this data.
+e.g.
+  Use a model to represent the concept of a todo item, including it&#39;s attributes.</li>
+<li>Models are created by extending Backbone.Model</li>
+</ul>
+<h3 id="initialization">Initialization</h3>
+<ul>
+<li>The <code>initialize()</code> method is called when a new instance of a model is created.<ul>
+<li>The use is optional, but gives greater control of the model.</li>
+</ul>
+</li>
+</ul>
+<h3 id="getters-setters">Getters &amp; Setters</h3>
+<ul>
+<li><code>Model.get()</code> provides easy access to it&#39;s attributes.</li>
+</ul>
+<blockquote>
+<p>  <strong>NOTE</strong></p>
+<p>  To clone all of a model&#39;s attributes, use it&#39;s <code>toJSON()</code> method.</p>
+<p>  <code>toJSON()</code> returns a copy of the attributes as an object.</p>
+<p>  When <code>JSON.stringify</code> is passed to an object with a <code>toJSON()</code> method, it stringifies the return value.</p>
+</blockquote>
+<ul>
+<li><code>Model.set()</code><ul>
+<li>Sets a hash of one of multiple attributes on the model</li>
+<li>When any of these attributes alter the state of the model, a &quot;change&quot; event is triggered on it.</li>
+<li>Change events for each attribute are also triggered and can be bound to.</li>
+</ul>
+</li>
+</ul>
+<h4 id="direct-access">Direct Access</h4>
+<p>  Models expose an <code>.attributes</code> attribute which represents an internal hash containing the state of the model generally
+  in the form of a JSON object.</p>
+<p>  Setting values through this attribute on a model bypasses triggers bound to the model.</p>
+<p>  Passing <code>{silent:true}</code> on a change of value for a model silences that change completely</p>
+<p>  It&#39;s best practice to use Model.set() or direct instantiation over accessing the <code>.attributes</code> attribute</p>
+<h3 id="listening-for-changes">Listening for Changes</h3>
+<p>  A convienient place to add listeners to a model is in the <code>initialize()</code> function</p>
+<p>  It&#39;s also possible to listen for changes in individual attributes through <code>&#39;change: attr&#39;</code></p>
+<h3 id="validation">Validation</h3>
+<ul>
+<li><code>Model.validate()</code> allows checking the attribute values for a model prior to setting them</li>
+<li>By default, validation occurs when the model is persisted using the <code>save()</code> method or when <code>set()</code> is called if
+<code>{validation:true}</code> is passed as in argument.<ul>
+<li>e.x. : <code>myModel.set({&#39;name&#39;, &#39;Johnny Boy&#39;}, {validation:true});</code></li>
+</ul>
+</li>
+<li>If the attributes provided are valid, nothing is returned from <code>.validate()</code>. If they are invalid, and error value
+should be returned</li>
+<li>If an Error is returner<ul>
+<li>an &#39;invalid&#39; event is triggered, setting the Validation Error property on the model with the value that is returned
+by this method.</li>
+<li><code>.save()</code> will not continue &amp; the attributes of the model will not be saved on the server. Similarly, <code>set()</code> will
+not set any invalid properties.<blockquote>
+<p>NOTE</p>
+<p>The .attributes object passed to the validate function represents what they would be after completing <code>set()</code> or `save().</p>
+<p>The object is distinct from the current attributes the model and parameters.</p>
+<p>Since it&#39;s a shallow copy,</p>
+<p>Number, String and boolean attributes can not be modified. Nested Objects within the attribues can be changed.</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="views">Views</h2>
+<ul>
+<li>Do not contain HTML markup</li>
+<li>Contain logic for presenting model&#39;s data to users<ul>
+<li>achieved through javascript templating. (i.e. underscores default, handlebars, mustache etc..)</li>
+</ul>
+</li>
+<li>A Views render can be bound to a Models change event so as to render changes to the models data set without a page refresh.</li>
+</ul>
+<h3 id="creating-new-views">Creating new views</h3>
+<pre><code>var View = Backbone.View.extend({
+    el: &#39;#someElement&#39;,
+
+    template : _.template(&#39;this.$el&#39;),
+
+    events : {
+        //events hash
+    },
+
+    render: function(){
+        //render logic
+    },
+
+    //any event functions
+});
+
+var myView = new View;</code></pre>
+<h3 id="el">el</h3>
+<ul>
+<li>The central property of a view is <strong>el</strong><ul>
+<li>A reference to a DOM element<ul>
+<li>All views must have one.</li>
+</ul>
+</li>
+<li>Views use <code>el</code> to compose this elements content and then insert it into the DOM all at once.</li>
+</ul>
+</li>
+<li><p>There are two ways to associate a view with an element:
+1 A new element can be created for the view and added to the DOM.
+2 A reference can be made to an existing element on the page.</p>
+<p>To create a new element for a view, set any combination of the following properties:</p>
+</li>
+<li>tagName : defaults to <code>div</code> if not specified.</li>
+<li>id</li>
+<li><p>className</p>
+<p>If the element already exists in the page, el can be set with a css selector.</p>
+<p><em>or</em></p>
+<p>Set el to an existing element when creating the view.</p>
+</li>
+</ul>
+<h3 id="-el-and-">$el and $()</h3>
+<p>  <strong>Backbone defined the $el property and $() function</strong></p>
+<table>
+<thead>
+<tr>
+<th>view.$el === $(view.el)</th>
+<th></th>
+<th>view.$(&quot;#someSelector&quot;) === $(view.el).find(&quot;#someSelector)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="setelement-">setElement()</h3>
+<ul>
+<li>Applies an existing view to a different DOM element<ul>
+<li>changes DOM reference</li>
+<li>rebinds events to new element</li>
+<li>unbinds events from old element</li>
+</ul>
+</li>
+<li>The &#39;el&#39; property represents the mark-up portion of the view that will be rendered.</li>
+<li>To render the view to the page, it must be added as a new element or appended to an existing one.</li>
+</ul>
+<h3 id="render-">render()</h3>
+<ul>
+<li>An optional function</li>
+<li>defines logic for a rendering template</li>
+<li>_.template() compiles JS templates into functions which can be evaluated for re-rendering.</li>
+</ul>
+<h4 id="convention">Convention</h4>
+<blockquote>
+<p>It is common to return <code>this</code> at the end of `render()</p>
+<p>It makes views easily reusable in parent views</p>
+<p>Something else that I don&#39;t understand.</p>
+</blockquote>
+<h3 id="the-events-hash">The events hash</h3>
+<ul>
+<li><p>attach event listeners to el-relative selectors or directly to el if no selector is provided.</p>
+<pre><code class="lang-javascript">events: {
+    &#39;click&#39; : &#39;explode&#39;, //if the user clicks the el
+    &#39;dblclick .select&#39;: &#39;implode&#39; //if the user double clicks &#39;.select&#39; within the el
+}</code></pre>
+</li>
+<li><code>_.bind(this.viewEvent, this)</code> may also be used.</li>
+</ul>
+<h2 id="collections">Collections</h2>
+<ul>
+<li>sets of models</li>
+<li>created by `Backbone.Collection.extend();</li>
+<li>Contains a property for specifying the type of model is contains.</li>
+</ul>
+<h3 id="adding-removing-models">Adding &amp; Removing Models</h3>
+<ul>
+<li>models can be added and removed using add() and remove()</li>
+<li>add and remove accept both individual and lists of models.</li>
+<li>When using <code>add()</code> on a collection, passing {merge:true} causes duplicate models to have their
+attributes merged into existing models instead of being igored</li>
+</ul>
+<h3 id="retrieving-models">Retrieving Models</h3>
+<ul>
+<li><code>collection.get()</code><ul>
+<li>accepts a single id, which must be set with model creation</li>
+</ul>
+</li>
+</ul>
+<h4 id="id">id</h4>
+<ul>
+<li>a unique identifier, either a number or string.</li>
+</ul>
+<h4 id="cid">cid</h4>
+<ul>
+<li>automatically generated when the model is created.</li>
+</ul>
+<h4 id="idattribute">idAttribute</h4>
+<ul>
+<li>Identifying attribute name of the model returned from the server.</li>
+<li>It maps a data field from the server to &#39;id&#39;.</li>
+<li>Mapping can be customized, but by default Bacbone assumes that it should be mapped to &#39;id&#39;</li>
+<li>Should be set by the server when the model is saved.</li>
+</ul>
+<h4 id="backbone-collection-contains-an-array-of-models-enumerated-by-their-id-property-when-collection-get-id-is-called-this-array-is-checked-for-existence-of-the-model-instance-with-the-corresponding-id-">Backbone.Collection contains an array of models enumerated by their ID property. When <code>Collection.get(id)</code> is called this array is checked for existence of the model instance with the corresponding id.</h4>
+<ul>
+<li>When creating a model:<code>var myModel = new Model</code><ul>
+<li>myModel.cid is equal to a unique id,</li>
+<li>myModel.id is equal to undefined.</li>
+</ul>
+</li>
+</ul>
+<h3 id="listening-for-events">Listening for events</h3>
+<ul>
+<li>Collections can listen for add &amp; remove events when models are added to or removed from a collection.</li>
+<li>Collections can also listen for changes to any of the models.</li>
+<li><p>jQuery style event maps can be used in the form:</p>
+<pre><code>```javasscript
+obj.on({
+    &#39;click&#39; : &#39;action&#39;,
+    &#39;click&#39; : &#39;action&#39;
+});
+```</code></pre>
+</li>
+<li>Backbone also supports a <code>once()</code> method for events.<ul>
+<li>ensures a callback only fires once.</li>
+</ul>
+</li>
+</ul>
+<h3 id="refreshing-and-resetting-collections">Refreshing and Resetting Collections</h3>
+<ul>
+<li><code>Collection.set()</code> takes an array of models and preforms the necessary add, remove, change operations required.</li>
+<li><p><code>Collection.reset()</code></p>
+<ul>
+<li>replaces the entire content of the collection</li>
+<li>with no arguments clears the collection</li>
+<li>does not fire <code>add</code> or <code>remove</code> events, a <code>reset</code> event is fired instead.</li>
+<li>When listening to a <code>reset</code> event, a list of the previous models is available in options.previousModels</li>
+</ul>
+<pre><code class="lang-javascript">`.on( &#39;reset&#39;, function(model, options){} );</code></pre>
+</li>
+</ul>
+<h2 id="underscore-utility-functions">Underscore Utility functions</h2>
+<h3 id="many-of-underscores-utility-functions-are-available-to-collections">Many of underscores utility functions are available to collections</h3>
+<h4 id="refer-to-backbone-doc-and-underscore-doc-respectively">refer to Backbone doc, and Underscore doc respectively</h4>
+<h2 id="chainable-api">Chainable API</h2>
+<h3 id="collections-can-also-make-use-of-underscores-chain-method-to-chain-array-manipulation-methods">Collections can also make use of underscores <code>chain()</code> method, to chain array manipulation methods</h3>
+<h4 id="refer-to-backbone-doc-and-underscore-doc-respectively">refer to Backbone doc, and Underscore doc respectively</h4>
+<h2 id="restful-persistence">RESTful persistence</h2>
+<h4 id="backbone-dramatically-simplifies-the-code-needed-to-preform-restful-sync-with-the-server">Backbone dramatically simplifies the code needed to preform RESTful sync with the server</h4>
+<h3 id="fetching-models-from-the-server">Fetching Models from the server</h3>
+<ul>
+<li>Collections.feth()<ul>
+<li>retrieves models from the server in the form of a JSON array through a GET request to
+a specified URL in the <code>url</code> property.</li>
+<li>When data is recieved, a <code>set()</code> will be executed.</li>
+</ul>
+</li>
+</ul>
+<h3 id="saving-models-to-the-server">Saving Models to the Server</h3>
+<h4 id="updates-to-models-are-preformed-individually">Updates to models are preformed individually</h4>
+<ul>
+<li>Model.save()<ul>
+<li>Constructs a URL by appending a Model&#39;s ID to the collections URL and sends an HTTP PUT to the server</li>
+<li>If the model is a new instance that was created in the browser, an HTTP POST is sent to the collection&#39;s URL.</li>
+</ul>
+</li>
+<li>Collections.create()<ul>
+<li>Can be used to create a new model, add it to the collection, and send it to the server with one method call.</li>
+</ul>
+</li>
+</ul>
+<h4 id="model-isnew-if-the-model-does-not-yet-have-an-id-it-s-considered-new">Model.isNew() - if the model does not yet have an id, it&#39;s considered new</h4>
+<h3 id="deleting-models-from-the-server">Deleting Models from the Server</h3>
+<ul>
+<li>Model.destroy()<ul>
+<li>Removes a model from the collection &amp; seds HTTP DELETE to the collections URL</li>
+</ul>
+</li>
+</ul>
+<h3 id="each-restful-api-method-accepts-a-variety-of-options">Each RESTful API method accepts a variety of options</h3>
+<ul>
+<li>All methods accept success &amp; error callbacks.</li>
+<li>{patch:true} with Model.save()<ul>
+<li>uses HTTP PATCH to save only attrs that have changed</li>
+<li>ex: `model.save(attrs, {patch:true});</li>
+</ul>
+</li>
+<li>{reset:true} with Collection.fetch() will result in the collection being updated using reset() instead of set().</li>
+</ul>
+<h4 id="refer-to-backbone-doc-for-more-info">refer to Backbone doc for more info</h4>
+<h2 id="events">Events</h2>
+<ul>
+<li><p>Backbone.Events is mixed in with:</p>
+<ul>
+<li>Backbone</li>
+<li>Backbone.Model</li>
+<li>Backbone.Collection</li>
+<li>Backbone.Router</li>
+<li>Backbone.history</li>
+<li>Backbone.View<h3 id="on-off-trigger-">on(), off(), trigger()</h3>
+</li>
+</ul>
+</li>
+<li><p>Backbone.Events can give any object the ablity to bind &amp; trigger custom events.</p>
+</li>
+<li><code>_extend(myObj, Backbone.Events)</code><ul>
+<li>Mixes events into an object</li>
+</ul>
+</li>
+<li>Events don&#39;t have to be declared before being bound to a callback handler</li>
+</ul>
+<h4 id="the-official-backbone-docs-recommend-namespacing-event-names-using-colons-if-there-are-many-events">The official Backbone docs recommend namespacing event names using colons if there are many events</h4>
+<pre><code>e.x.
+obj.on({
+    &#39;bake:cake&#39;: cakeRecipe,
+    &#39;bake:pie&#39; : pieRecipe
+};</code></pre>
+<h3 id="the-all-event">The &#39;all&#39; event</h3>
+<ul>
+<li>is fired when any event is fired</li>
+<li>Takes a parameter that contains the event&#39;s name for it&#39;s callback.</li>
+</ul>
+<h3 id="-off-"><code>.off()</code></h3>
+<ul>
+<li>removes callback functions previous bound to the object</li>
+</ul>
+<h3 id="-trigger-"><code>.trigger()</code></h3>
+<ul>
+<li>triggers a callback for a specified event, or a space seperated list of events.</li>
+<li>Can pass multiple arguments to the callback function</li>
+</ul>
+<h3 id="-listento-"><code>.listenTo()</code></h3>
+<ul>
+<li>allows for an object to listen for events on another object</li>
+</ul>
+<blockquote>
+<p>Thing to look out for</p>
+<p>using on &amp; off and removing views at the same time is generally safe.</p>
+<p>Problems start when a view is remmoved that was listening to events on a model that has persisted and off was not
+called on the views event handler</p>
+<p>This is a common memory leak know as Ghost Views, because the Garbage collector cannot properly do it&#39;s job.</p>
+<p>This is why stopListening() is handy.</p>
+</blockquote>
+<h3 id="-stoplistening-"><code>.stopListening()</code></h3>
+<ul>
+<li>Removes all events bound to an object with <code>.listenTo()</code></li>
+<li>Almost every on call requires an off call for garbage collection to function properly.</li>
+<li>The default View.remove() calls stopListening().</li>
+</ul>
+<h2 id="events-listeners">Events &amp; Listeners</h2>
+<ul>
+<li>Two events to listen for within a view
+1 DOM Elements
+2 Events triggered by the event API</li>
+</ul>
+<h4 id="dom-elements-can-be-bound-to-using-the-view-s-events-property-or-jquery-on-">DOM Elements can be bound to using the view&#39;s events property or jQuery.on()</h4>
+<ul>
+<li>Callbacks within the events property, <code>this</code> refers to the view object.</li>
+<li>Callbacks bound directly to the element using jQuery.on(), <code>this</code> refers to the DOM Element</li>
+</ul>
+<h4 id="refer-to-delegateevents-in-backbone-documentation-">Refer to delegateEvents() in Backbone Documentation.</h4>
+<h2 id="routers">Routers</h2>
+<ul>
+<li>Provide a way to connect URL&#39;s to parts of the app.</li>
+<li>Any part of the app that needs to be navigated to in one way or another needs a URL</li>
+</ul>
+<h4 id="an-app-usually-has-at-least-one-route-mapping-a-url-route-to-a-function-that-determines-what-happens-when-a-user-reaches-that-route-defines-as-">An app usually has at least one route mapping a URL route to a function that determines what happens when a user reaches that route, defines as:</h4>
+<pre><code class="lang-javascript">&#39;route&#39;: &#39;mappedFunction&#39;</code></pre>
+<h4 id="typically-only-one-router-is-needed-perhaps-two-">Typically only one router is needed, perhaps two.</h4>
+<h2 id="backbone-history">Backbone.history</h2>
+<ul>
+<li>handles hash change events<ul>
+<li>automatically handels routes that have been defined.</li>
+</ul>
+</li>
+</ul>
+<h3 id="-backbone-history-start-"><code>Backbone.history.start()</code></h3>
+<ul>
+<li>Tells Backbone to begin monitoring &#39;hashchange&#39; events.</li>
+</ul>
+<h3 id="-navigate-"><code>.navigate()</code></h3>
+<ul>
+<li>Can be used to update the URL without triggering the hashchange event.</li>
+<li>Setting {trigger:true} will override this feature. <strong>Though this is not suggested</strong></li>
+</ul>
+<h3 id="-route-event">&#39;route&#39; event</h3>
+<ul>
+<li>triggered on the router</li>
+<li>triggered on Backbone.history</li>
+</ul>
+<h2 id="backbone-s-sync-api">Backbone&#39;s Sync API</h2>
+<h4 id="support-for-restful-persistence-through">Support for RESTful persistence through</h4>
+<ul>
+<li><code>fetch()</code> &amp; <code>create()</code> methods on Collections</li>
+<li><code>save()</code> &amp; <code>destroy()</code> methods on Models</li>
+</ul>
+<h4 id="the-sync-method-lies-underneath-these-guys">The &#39;sync&#39; method lies underneath these guys</h4>
+<ul>
+<li>Assumes a jquery like <code>$.ajax</code> method.</li>
+<li>based on jQuery&#39;s API</li>
+<li>Is called every time a Backbone app attempts to<ul>
+<li>Read</li>
+<li>Save, or</li>
+<li>Delete Models</li>
+</ul>
+</li>
+</ul>
+
+  </body>
+</html>
